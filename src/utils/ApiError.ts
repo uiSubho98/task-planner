@@ -4,12 +4,10 @@ class ApiError extends Error {
     public message: string,
     public errors?: any[],
     public stack?: string,
-    public data?: any,
     public success?: boolean
   ) {
     super(message);
     this.statusCode = statusCode;
-    this.data = data || null;
     this.message = message;
     this.success = false;
     this.errors = errors || [];

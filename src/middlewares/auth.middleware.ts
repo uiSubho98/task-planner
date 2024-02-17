@@ -13,7 +13,7 @@ const verifyJWT: RequestHandler = (req, res, next) => {
       process.env.ACCESS_TOKEN_SECRET as Secret | GetPublicKeyOrSecret
     ) as any;
     if (decoded) {
-      req.body = { user: decoded };
+      req.body = { user: decoded, payload: req.body };
       next();
     }
   } catch (error) {

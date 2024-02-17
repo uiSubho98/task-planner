@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import userRouter from "./src/routes/user.routes";
+import taskRouter from "./src/routes/task.routes";
 const app = express();
 
 app.use(
@@ -31,6 +32,7 @@ app.get("/", (req, res) => {
 // });
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/task", taskRouter);
 
 export { app };
 // https://localhost:8000/api/v1/users/register

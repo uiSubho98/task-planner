@@ -109,6 +109,39 @@ const getAllLoginUsers = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
+const getAllUsers = asyncHandler(async (_, res: Response) => {
+  const allUsers = await User.find({}).select(
+    "-password -refreshToken -createdAt -updatedAt -__v"
+  );
+  if (!allUsers) {
+    throw new ApiError(400, "No User Present");
+  }
+  const data = {
+    users: allUsers,
+    totalCount: allUsers.length,
+  };
+  res
+    .status(200)
+    .json(new ApiResponse(200, data, "Users Fetched Successfully"));
+});
+
+const findUserById = asyncHandler(async (req: Request, res: Response) => {
+  const user_id = req.params.id;
+  console.log(user_id);
+  if (!user_id) {
+    throw new ApiError(400, "User Id is required");
+  }
+  const user = await User.findById(user_id).select(
+    "-password -refreshToken -__v -createdAt -updatedAt"
+  );
+  if (!user) {
+    throw new ApiError(400, "User didnt exists");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User Found Successfully"));
+});
+
 const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.body.user._id,
@@ -125,4 +158,11 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User log out successfully"));
 });
 
-export { registerUser, loginUser, logoutUser, getAllLoginUsers };
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  getAllLoginUsers,
+  getAllUsers,
+  findUserById,
+};

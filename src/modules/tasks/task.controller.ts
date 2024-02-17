@@ -198,6 +198,24 @@ const updateTaskStatus = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
+const deleteTask = asyncHandler(async (req: Request, res: Response) => {
+  const { task_id } = req.body.payload;
+  if (task_id.trim() === "" || !task_id) {
+    throw new ApiError(400, "Task Id is required");
+  }
+  const task = await Task.findOne({ task_id });
+  if (!task) {
+    throw new ApiError(400, "Task not found");
+  }
+  if (req.body.user._id.toString() !== task.task_createdBy.toString()) {
+    throw new ApiError(400, "Access Denied");
+  }
+  await Task.deleteOne({ task_id });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Task Deleted SuccessFully"));
+});
+
 export {
   createTask,
   addComment,
@@ -205,4 +223,5 @@ export {
   findAllTasks,
   updateTaskPriority,
   updateTaskStatus,
+  deleteTask,
 };

@@ -6,6 +6,7 @@ const taskSchema = new Schema<ITask>(
     task_id: {
       type: String,
       required: true,
+      unique: true,
     },
     task_description: {
       type: String,

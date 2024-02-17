@@ -1,8 +1,9 @@
 import { model, Schema } from "mongoose";
-import { IUser } from "./user.interface";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import config from "../../config";
+import IUser from "./user.interface";
+import { ApiError } from "../../utils/ApiError";
 
 const userSchema = new Schema<IUser>(
   {
@@ -21,10 +22,12 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "Password is required"],
       trim: true,
       index: true,
     },
+    refreshToken: { type: String },
+    isLogin: { type: Boolean },
   },
   { timestamps: true }
 );
@@ -36,9 +39,6 @@ userSchema.pre("save", async function (next) {
     next();
   }
 });
-userSchema.methods.isPasswordCorrect = async function (password: string) {
-  return await bcrypt.compare(password, this.password);
-};
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
@@ -52,6 +52,16 @@ userSchema.methods.generateAccessToken = function () {
       expiresIn: config.access_token_expiry,
     }
   );
+};
+userSchema.methods.comparePassword = async function (
+  password: string
+): Promise<boolean> {
+  try {
+    return await bcrypt.compare(password, this.password);
+  } catch (error) {
+    // Handle errors
+    throw new ApiError(500, "Something went wrong while comparing passwords");
+  }
 };
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
